@@ -39,14 +39,17 @@ class AboutWindow(tk.Toplevel):
         self.create_icon(icons_frame, "window-maximize", "Tkinter")
         self.create_icon(icons_frame, "brain", "Fuzzy Logic")
 
-        portfolio_label = ttk.Label(main_frame, text="https://fldr.xyz", font=FONT_SMALL, foreground=ACCENT_PRIMARY, background=BG_SIDEBAR)
-        portfolio_label.pack(pady=PAD_MEDIUM)
-        portfolio_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://fldr.xyz"))
-        portfolio_label.bind("<Enter>", lambda e: portfolio_label.config(cursor="hand2"))
-        portfolio_label.bind("<Leave>", lambda e: portfolio_label.config(cursor=""))
-
-        made_by_label = ttk.Label(main_frame, text="Made with <3 by f0lder", font=FONT_SMALL, foreground=TEXT_MUTED, background=BG_SIDEBAR)
-        made_by_label.pack(pady=(PAD_LARGE, 0))
+        # Made by section with clickable underlined f0lder link
+        made_by_frame = ttk.Frame(main_frame, style='TFrame')
+        made_by_frame.pack(pady=(PAD_LARGE, 0))
+        
+        ttk.Label(made_by_frame, text="Made with <3 by ", font=FONT_SMALL, foreground=TEXT_MUTED, background=BG_SIDEBAR).pack(side='left')
+        
+        folder_link = tk.Label(made_by_frame, text="f0lder", font=(FONT_FAMILY, 9, "underline"), fg=ACCENT_PRIMARY, bg=BG_SIDEBAR)
+        folder_link.pack(side='left')
+        folder_link.bind("<Button-1>", lambda e: webbrowser.open_new("https://fldr.xyz"))
+        folder_link.bind("<Enter>", lambda e: folder_link.config(cursor="hand2"))
+        folder_link.bind("<Leave>", lambda e: folder_link.config(cursor=""))
         
         ok_button = ttk.Button(main_frame, text="OK", command=self.destroy)
         ok_button.pack(pady=(PAD_LARGE, 0))

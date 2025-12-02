@@ -7,6 +7,7 @@
 # - Real-world traffic timing parameters (saturation headway ~2 sec/veh)
 # =============================================================================
 
+import theme
 from theme import (
     MF_LOW, MF_MEDIUM, MF_HIGH,
     RULE_KEEP, RULE_KEEP_ALT, RULE_SWITCH, RULE_SWITCH_TIME, 
@@ -17,8 +18,6 @@ from theme import (
     STATUS_GOOD, STATUS_WARNING, STATUS_ERROR,
     FLOW_PRIMARY, FLOW_LOW, FLOW_MED, FLOW_HIGH,
     BG_PANEL, BG_DARK, BORDER_DARK,
-    FONT_TINY, FONT_MINI, FONT_MICRO, FONT_SMALL, FONT_LABEL_BOLD,
-    FONT_VALUE_MEDIUM, FONT_SCORE, FONT_STATUS,
     get_score_color
 )
 
@@ -321,18 +320,18 @@ class FuzzyVisualizer:
         ox, oy = pad, h - pad - 10
         
         # Title
-        cv.create_text(w / 2, 8, text=title, fill=TEXT_PRIMARY, font=FONT_TINY)
+        cv.create_text(w / 2, 8, text=title, fill=TEXT_PRIMARY, font=theme.FONT_TINY)
         
         # Axis
         cv.create_line(ox, oy, ox + gw, oy, fill=BORDER_DARK)
         
         # Format axis labels based on range
         if max_range <= 2:
-            cv.create_text(ox, oy + 10, text="0", fill=TEXT_MUTED, font=FONT_MINI, anchor='n')
-            cv.create_text(ox + gw, oy + 10, text=f"{max_range:.1f}", fill=TEXT_MUTED, font=FONT_MINI, anchor='n')
+            cv.create_text(ox, oy + 10, text="0", fill=TEXT_MUTED, font=theme.FONT_MINI, anchor='n')
+            cv.create_text(ox + gw, oy + 10, text=f"{max_range:.1f}", fill=TEXT_MUTED, font=theme.FONT_MINI, anchor='n')
         else:
-            cv.create_text(ox, oy + 10, text="0", fill=TEXT_MUTED, font=FONT_MINI, anchor='n')
-            cv.create_text(ox + gw, oy + 10, text=f"{int(max_range)}+", fill=TEXT_MUTED, font=FONT_MINI, anchor='n')
+            cv.create_text(ox, oy + 10, text="0", fill=TEXT_MUTED, font=theme.FONT_MINI, anchor='n')
+            cv.create_text(ox + gw, oy + 10, text=f"{int(max_range)}+", fill=TEXT_MUTED, font=theme.FONT_MINI, anchor='n')
         
         scale_x = gw / max_range
         
@@ -350,9 +349,9 @@ class FuzzyVisualizer:
         
         # Membership values display
         mu_low, mu_med, mu_high = mus
-        cv.create_text(ox + 5, 20, text=f"S:{mu_low:.1f}", fill=MF_LOW, font=FONT_MICRO, anchor='w')
-        cv.create_text(w / 2, 20, text=f"M:{mu_med:.1f}", fill=MF_MEDIUM, font=FONT_MICRO, anchor='center')
-        cv.create_text(w - pad - 5, 20, text=f"H:{mu_high:.1f}", fill=MF_HIGH, font=FONT_MICRO, anchor='e')
+        cv.create_text(ox + 5, 20, text=f"S:{mu_low:.1f}", fill=MF_LOW, font=theme.FONT_MICRO, anchor='w')
+        cv.create_text(w / 2, 20, text=f"M:{mu_med:.1f}", fill=MF_MEDIUM, font=theme.FONT_MICRO, anchor='center')
+        cv.create_text(w - pad - 5, 20, text=f"H:{mu_high:.1f}", fill=MF_HIGH, font=theme.FONT_MICRO, anchor='e')
         
         # Current value indicator
         ix = ox + min(val * scale_x, gw)
@@ -365,7 +364,7 @@ class FuzzyVisualizer:
             val_text = f"{val:.1f}"
         else:
             val_text = f"{val:.0f}s"
-        cv.create_text(ix, oy - gh - 5, text=val_text, fill=ACCENT_PRIMARY, font=FONT_MINI)
+        cv.create_text(ix, oy - gh - 5, text=val_text, fill=ACCENT_PRIMARY, font=theme.FONT_MINI)
     
     @staticmethod
     def draw_rules_expanded(cv, rules, flow_ratio, mu_f):
@@ -399,13 +398,13 @@ class FuzzyVisualizer:
         row_spacing = 20
         
         def bar(y, txt, v, col, weight=""):
-            cv.create_text(label_width, y + bar_height / 2, text=txt, fill=TEXT_PRIMARY, anchor='e', font=FONT_SMALL)
+            cv.create_text(label_width, y + bar_height / 2, text=txt, fill=TEXT_PRIMARY, anchor='e', font=theme.FONT_SMALL)
             cv.create_rectangle(bar_start, y, bar_start + bar_width, y + bar_height, fill=BG_DARK, outline="")
             bw = bar_width * min(v, 2.0) / 2.0
             cv.create_rectangle(bar_start, y, bar_start + bw, y + bar_height, fill=col, outline="")
-            cv.create_text(bar_start + bar_width + 8, y + bar_height / 2, text=f"{v:.2f}", fill=TEXT_MUTED, anchor='w', font=FONT_TINY)
+            cv.create_text(bar_start + bar_width + 8, y + bar_height / 2, text=f"{v:.2f}", fill=TEXT_MUTED, anchor='w', font=theme.FONT_TINY)
             if weight:
-                cv.create_text(bar_start + bar_width + 45, y + bar_height / 2, text=weight, fill=TEXT_DISABLED, anchor='w', font=FONT_TINY)
+                cv.create_text(bar_start + bar_width + 45, y + bar_height / 2, text=weight, fill=TEXT_DISABLED, anchor='w', font=theme.FONT_TINY)
         
         # KEEP rules (green shades) - reasons to keep green
         bar(4, "KEEP Clear", r1_total, RULE_KEEP, "w:1.4")
@@ -437,8 +436,8 @@ class FuzzyVisualizer:
         h = 35
         
         # Flow label and value
-        cv.create_text(10, h / 2, text="FLOW:", fill=FLOW_PRIMARY, font=FONT_LABEL_BOLD, anchor='w')
-        cv.create_text(55, h / 2, text=f"{flow_ratio:.2f}x", fill=FLOW_PRIMARY, font=FONT_VALUE_MEDIUM, anchor='w')
+        cv.create_text(10, h / 2, text="FLOW:", fill=FLOW_PRIMARY, font=theme.FONT_LABEL_BOLD, anchor='w')
+        cv.create_text(55, h / 2, text=f"{flow_ratio:.2f}x", fill=FLOW_PRIMARY, font=theme.FONT_VALUE_MEDIUM, anchor='w')
         
         # Simple progress bar showing flow ratio
         bar_x = 120
@@ -469,7 +468,7 @@ class FuzzyVisualizer:
             status, status_color = "EXCEEDING", FLOW_HIGH
         else:
             status, status_color = "ON TARGET", FLOW_MED
-        cv.create_text(w - 10, h / 2, text=status, fill=status_color, font=FONT_STATUS, anchor='e')
+        cv.create_text(w - 10, h / 2, text=status, fill=status_color, font=theme.FONT_STATUS, anchor='e')
     
     @staticmethod
     def draw_output_expanded(cv, score, rules, threshold):
@@ -501,9 +500,9 @@ class FuzzyVisualizer:
         
         # Axis
         cv.create_line(ox, oy, ox + gw, oy, fill=TEXT_DISABLED)
-        cv.create_text(ox, oy + 10, text="SWITCH", fill=STATUS_ERROR, font=FONT_TINY, anchor="w")
-        cv.create_text(ox + gw / 2, oy + 10, text="HOLD", fill=STATUS_WARNING, font=FONT_TINY, anchor="center")
-        cv.create_text(ox + gw, oy + 10, text="KEEP", fill=STATUS_GOOD, font=FONT_TINY, anchor="e")
+        cv.create_text(ox, oy + 10, text="SWITCH", fill=STATUS_ERROR, font=theme.FONT_TINY, anchor="w")
+        cv.create_text(ox + gw / 2, oy + 10, text="HOLD", fill=STATUS_WARNING, font=theme.FONT_TINY, anchor="center")
+        cv.create_text(ox + gw, oy + 10, text="KEEP", fill=STATUS_GOOD, font=theme.FONT_TINY, anchor="e")
         
         def to_x(v):
             return ox + (v / 100 * gw)
@@ -531,7 +530,7 @@ class FuzzyVisualizer:
         # Threshold line
         tx = to_x(threshold)
         cv.create_line(tx, oy, tx, oy - gh, fill=ACCENT_PRIMARY, width=1, dash=(3, 3))
-        cv.create_text(tx, oy - gh - 5, text=f"T:{threshold:.0f}", fill=ACCENT_PRIMARY, font=FONT_MINI)
+        cv.create_text(tx, oy - gh - 5, text=f"T:{threshold:.0f}", fill=ACCENT_PRIMARY, font=theme.FONT_MINI)
         
         # Score indicator
         cx = to_x(score)
@@ -539,10 +538,10 @@ class FuzzyVisualizer:
         
         # Score color
         score_color = get_score_color(score)
-        cv.create_text(cx, oy - gh - 18, text=f"{int(score)}%", fill=score_color, font=FONT_SCORE)
+        cv.create_text(cx, oy - gh - 18, text=f"{int(score)}%", fill=score_color, font=theme.FONT_SCORE)
         
         # Decision indicator
         if score < threshold:
-            cv.create_text(ox + gw - 50, 10, text="→ SWITCH", fill=STATUS_ERROR, font=FONT_LABEL_BOLD)
+            cv.create_text(ox + gw - 50, 10, text="→ SWITCH", fill=STATUS_ERROR, font=theme.FONT_LABEL_BOLD)
         else:
-            cv.create_text(ox + gw - 50, 10, text="→ KEEP", fill=STATUS_GOOD, font=FONT_LABEL_BOLD)
+            cv.create_text(ox + gw - 50, 10, text="→ KEEP", fill=STATUS_GOOD, font=theme.FONT_LABEL_BOLD)

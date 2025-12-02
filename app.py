@@ -13,6 +13,7 @@ from collections import deque
 # Local imports
 from car import Car
 from ttkbootstrap_icons_fa.icon import FAIcon
+import theme
 from theme import (
     # Background colors
     BG_MAIN, BG_SIDEBAR, BG_PANEL, BG_CANVAS, BG_DARK,
@@ -27,6 +28,9 @@ from theme import (
     # Gauge colors
     GAUGE_UNDER_CAPACITY, GAUGE_OVER_CAPACITY,
     GAUGE_CAPACITY_LINE, GAUGE_DEMAND_LINE,
+    # Rule colors
+    RULE_KEEP, RULE_KEEP_ALT, RULE_SWITCH, RULE_SWITCH_TIME,
+    RULE_SWITCH_EMPTY, RULE_CONFLICT,
     # Other colors
     OVERFLOW_QUEUE, BORDER_LIGHT, BORDER_DARK,
     # Fonts
@@ -37,7 +41,9 @@ from theme import (
     PAD_TINY, PAD_SMALL, PAD_MEDIUM, PAD_LARGE, PAD_XLARGE,
     PAD_SECTION_TOP, PAD_SECTION_START, PAD_ROW, PAD_ELEMENT, PAD_FRAME, PAD_BUTTON,
     # Helpers
-    get_efficiency_color, get_flow_status, get_capacity_color, get_gauge_bar_color
+    get_efficiency_color, get_flow_status, get_capacity_color, get_gauge_bar_color,
+    # Font family for dynamic fonts
+    FONT_FAMILY
 )
 from fuzzy_logic import FuzzyLogicController, FuzzyVisualizer
 from about import AboutWindow
@@ -120,26 +126,26 @@ class UltimateTrafficApp(tk.Tk):
         self.style.configure('TPanedwindow', background=BG_MAIN)
         self.style.map('TPanedwindow.Sash', background=[('!active', BG_MAIN)], troughcolor=[('!active', BG_MAIN)])
 
-        # --- Labels ---
-        self.style.configure('TLabel', background=BG_SIDEBAR, foreground=TEXT_PRIMARY, font=FONT_NORMAL)
-        self.style.configure('Dark.TLabel', background=BG_DARK, foreground=TEXT_PRIMARY, font=FONT_LABEL_BOLD)
-        self.style.configure('Header.TLabel', background=BG_DARK, foreground=TEXT_MUTED, font=FONT_LABEL_BOLD)
-        self.style.configure('Primary.TLabel', background=BG_SIDEBAR, foreground=ACCENT_PRIMARY, font=FONT_LABEL)
-        self.style.configure('Demand.TLabel', background=BG_SIDEBAR, foreground=GAUGE_DEMAND_LINE, font=FONT_LABEL)
-        self.style.configure('RealWorld.TLabel', background=BG_SIDEBAR, foreground=ACCENT_TERTIARY, font=FONT_LABEL)
-        self.style.configure('Value.Primary.TLabel', background=BG_SIDEBAR, foreground=ACCENT_PRIMARY, font=FONT_VALUE_MEDIUM)
-        self.style.configure('Value.Demand.TLabel', background=BG_SIDEBAR, foreground=GAUGE_DEMAND_LINE, font=FONT_VALUE_MEDIUM)
-        self.style.configure('Value.RealWorld.TLabel', background=BG_SIDEBAR, foreground=ACCENT_TERTIARY, font=FONT_VALUE_MEDIUM)
-        self.style.configure('Status.TLabel', background=BG_SIDEBAR, foreground=TEXT_MUTED, font=FONT_STATUS)
-        self.style.configure('Overall.Status.TLabel', background=BG_DARK, foreground=TEXT_MUTED, font=FONT_STATUS)
-        self.style.configure('Small.TLabel', background=BG_SIDEBAR, foreground=TEXT_PRIMARY, font=FONT_VALUE_SMALL)
-        self.style.configure('Small.Muted.TLabel', background=BG_SIDEBAR, foreground=TEXT_MUTED, font=FONT_VALUE_SMALL)
-        self.style.configure('LOS.TLabel', background=BG_SIDEBAR, font=FONT_VALUE_MEDIUM)
-        self.style.configure('Overall.LOS.TLabel', background=BG_DARK, font=FONT_VALUE_LARGE)
-        self.style.configure('Section.TLabel', background=BG_SIDEBAR, foreground=TEXT_SECONDARY, font=FONT_LABEL)
+        # --- Labels --- (use theme.FONT_* for dynamic updates)
+        self.style.configure('TLabel', background=BG_SIDEBAR, foreground=TEXT_PRIMARY, font=theme.FONT_NORMAL)
+        self.style.configure('Dark.TLabel', background=BG_DARK, foreground=TEXT_PRIMARY, font=theme.FONT_LABEL_BOLD)
+        self.style.configure('Header.TLabel', background=BG_DARK, foreground=TEXT_MUTED, font=theme.FONT_LABEL_BOLD)
+        self.style.configure('Primary.TLabel', background=BG_SIDEBAR, foreground=ACCENT_PRIMARY, font=theme.FONT_LABEL)
+        self.style.configure('Demand.TLabel', background=BG_SIDEBAR, foreground=GAUGE_DEMAND_LINE, font=theme.FONT_LABEL)
+        self.style.configure('RealWorld.TLabel', background=BG_SIDEBAR, foreground=ACCENT_TERTIARY, font=theme.FONT_LABEL)
+        self.style.configure('Value.Primary.TLabel', background=BG_SIDEBAR, foreground=ACCENT_PRIMARY, font=theme.FONT_VALUE_MEDIUM)
+        self.style.configure('Value.Demand.TLabel', background=BG_SIDEBAR, foreground=GAUGE_DEMAND_LINE, font=theme.FONT_VALUE_MEDIUM)
+        self.style.configure('Value.RealWorld.TLabel', background=BG_SIDEBAR, foreground=ACCENT_TERTIARY, font=theme.FONT_VALUE_MEDIUM)
+        self.style.configure('Status.TLabel', background=BG_SIDEBAR, foreground=TEXT_MUTED, font=theme.FONT_STATUS)
+        self.style.configure('Overall.Status.TLabel', background=BG_DARK, foreground=TEXT_MUTED, font=theme.FONT_STATUS)
+        self.style.configure('Small.TLabel', background=BG_SIDEBAR, foreground=TEXT_PRIMARY, font=theme.FONT_VALUE_SMALL)
+        self.style.configure('Small.Muted.TLabel', background=BG_SIDEBAR, foreground=TEXT_MUTED, font=theme.FONT_VALUE_SMALL)
+        self.style.configure('LOS.TLabel', background=BG_SIDEBAR, font=theme.FONT_VALUE_MEDIUM)
+        self.style.configure('Overall.LOS.TLabel', background=BG_DARK, font=theme.FONT_VALUE_LARGE)
+        self.style.configure('Section.TLabel', background=BG_SIDEBAR, foreground=TEXT_SECONDARY, font=theme.FONT_LABEL)
         
         # --- Button ---
-        self.style.configure('TButton', font=FONT_LABEL_BOLD, foreground=TEXT_PRIMARY)
+        self.style.configure('TButton', font=theme.FONT_LABEL_BOLD, foreground=TEXT_PRIMARY)
         self.style.map('TButton',
             background=[('!active', ACCENT_SECONDARY), ('active', ACCENT_PRIMARY)],
         )
@@ -193,6 +199,26 @@ class UltimateTrafficApp(tk.Tk):
     def open_settings(self):
         SettingsWindow(self)
 
+    def rebuild_sidebar(self):
+        """Rebuild the sidebar UI with current font settings"""
+        # Reapply styles with updated fonts
+        self.setup_styles()
+        
+        # Destroy old scrollable content
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+        
+        # Rebuild sidebar sections
+        ctrl = self.scrollable_frame
+        self._setup_flow_analyzer(ctrl)
+        self._setup_lane_stats(ctrl)
+        self._setup_fuzzy_engine(ctrl)
+        self._setup_controls(ctrl)
+        
+        # Update scroll region
+        self.scrollable_frame.update_idletasks()
+        self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox('all'))
+
     def _setup_scrollable_sidebar(self):
         """Setup scrollable sidebar content"""
         self.sidebar_canvas = tk.Canvas(self.sidebar, bg=BG_SIDEBAR, highlightthickness=0)
@@ -219,7 +245,7 @@ class UltimateTrafficApp(tk.Tk):
         flow_label = tk.Frame(parent, bg=BG_SIDEBAR)
         self.flow_icon_img = FAIcon("chart-line", color=ACCENT_PRIMARY, size=18).image
         tk.Label(flow_label, image=self.flow_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
-        tk.Label(flow_label, text="FLOW ANALYZER", font=FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        tk.Label(flow_label, text="FLOW ANALYZER", font=theme.FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
         
         bench_frame = tk.LabelFrame(
             parent, labelwidget=flow_label,
@@ -233,27 +259,27 @@ class UltimateTrafficApp(tk.Tk):
         header = tk.Frame(content, bg=BG_DARK)
         header.pack(fill='x', pady=(0, PAD_TINY))
         
-        tk.Label(header, text="Metric", font=FONT_LABEL_BOLD, fg=TEXT_MUTED, bg=BG_DARK, width=14, anchor='w').pack(side='left', padx=PAD_SMALL)
-        tk.Label(header, text="Value", font=FONT_LABEL_BOLD, fg=TEXT_MUTED, bg=BG_DARK, width=8).pack(side='left')
-        tk.Label(header, text="Status", font=FONT_LABEL_BOLD, fg=TEXT_MUTED, bg=BG_DARK).pack(side='right', padx=PAD_SMALL)
+        tk.Label(header, text="Metric", font=theme.FONT_LABEL_BOLD, fg=TEXT_MUTED, bg=BG_DARK, width=14, anchor='w').pack(side='left', padx=PAD_SMALL)
+        tk.Label(header, text="Value", font=theme.FONT_LABEL_BOLD, fg=TEXT_MUTED, bg=BG_DARK, width=8).pack(side='left')
+        tk.Label(header, text="Status", font=theme.FONT_LABEL_BOLD, fg=TEXT_MUTED, bg=BG_DARK).pack(side='right', padx=PAD_SMALL)
         
         row1 = tk.Frame(content, bg=BG_SIDEBAR)
         row1.pack(fill='x', pady=PAD_ROW)
         
         tk.Label(
             row1, text="⬤ Simulation:",
-            fg=ACCENT_PRIMARY, bg=BG_SIDEBAR, font=FONT_LABEL, width=14, anchor='w'
+            fg=ACCENT_PRIMARY, bg=BG_SIDEBAR, font=theme.FONT_LABEL, width=14, anchor='w'
         ).pack(side='left')
         
         self.lbl_my_flow = tk.Label(
             row1, text="0.0",
-            fg=ACCENT_PRIMARY, bg=BG_SIDEBAR, font=FONT_VALUE_MEDIUM, width=8, anchor='e'
+            fg=ACCENT_PRIMARY, bg=BG_SIDEBAR, font=theme.FONT_VALUE_MEDIUM, width=8, anchor='e'
         )
         self.lbl_my_flow.pack(side='left')
         
         self.lbl_flow_status = tk.Label(
             row1, text="",
-            fg=TEXT_MUTED, bg=BG_SIDEBAR, font=FONT_STATUS
+            fg=TEXT_MUTED, bg=BG_SIDEBAR, font=theme.FONT_STATUS
         )
         self.lbl_flow_status.pack(side='right')
         
@@ -262,18 +288,18 @@ class UltimateTrafficApp(tk.Tk):
         
         tk.Label(
             row2, text="⬤ Demand:",
-            fg=GAUGE_DEMAND_LINE, bg=BG_SIDEBAR, font=FONT_LABEL, width=14, anchor='w'
+            fg=GAUGE_DEMAND_LINE, bg=BG_SIDEBAR, font=theme.FONT_LABEL, width=14, anchor='w'
         ).pack(side='left')
         
         self.lbl_target_flow = tk.Label(
             row2, text="40",
-            fg=GAUGE_DEMAND_LINE, bg=BG_SIDEBAR, font=FONT_VALUE_MEDIUM, width=8, anchor='e'
+            fg=GAUGE_DEMAND_LINE, bg=BG_SIDEBAR, font=theme.FONT_VALUE_MEDIUM, width=8, anchor='e'
         )
         self.lbl_target_flow.pack(side='left')
         
         self.lbl_efficiency = tk.Label(
             row2, text="--%",
-            fg=TEXT_MUTED, bg=BG_SIDEBAR, font=FONT_STATUS
+            fg=TEXT_MUTED, bg=BG_SIDEBAR, font=theme.FONT_STATUS
         )
         self.lbl_efficiency.pack(side='right')
         
@@ -282,18 +308,18 @@ class UltimateTrafficApp(tk.Tk):
         
         tk.Label(
             row3, text="⬤ Real-World:",
-            fg=ACCENT_TERTIARY, bg=BG_SIDEBAR, font=FONT_LABEL, width=14, anchor='w'
+            fg=ACCENT_TERTIARY, bg=BG_SIDEBAR, font=theme.FONT_LABEL, width=14, anchor='w'
         ).pack(side='left')
         
         self.lbl_realworld = tk.Label(
             row3, text="28-36",
-            fg=ACCENT_TERTIARY, bg=BG_SIDEBAR, font=FONT_VALUE_MEDIUM, width=8, anchor='e'
+            fg=ACCENT_TERTIARY, bg=BG_SIDEBAR, font=theme.FONT_VALUE_MEDIUM, width=8, anchor='e'
         )
         self.lbl_realworld.pack(side='left')
         
         self.lbl_comparison = tk.Label(
             row3, text="HCM typical",
-            fg=TEXT_MUTED, bg=BG_SIDEBAR, font=FONT_STATUS
+            fg=TEXT_MUTED, bg=BG_SIDEBAR, font=theme.FONT_STATUS
         )
         self.lbl_comparison.pack(side='right')
         
@@ -307,7 +333,7 @@ class UltimateTrafficApp(tk.Tk):
         
         tk.Label(
             content, text="History (60s)",
-            font=FONT_LABEL, fg=TEXT_SECONDARY, bg=BG_SIDEBAR
+            font=theme.FONT_LABEL, fg=TEXT_SECONDARY, bg=BG_SIDEBAR
         ).pack(anchor='w', pady=(PAD_SMALL, 0))
         
         self.cv_history = tk.Canvas(
@@ -322,7 +348,7 @@ class UltimateTrafficApp(tk.Tk):
         lane_label = tk.Frame(parent, bg=BG_SIDEBAR)
         self.lane_icon_img = FAIcon("road", color=ACCENT_SECONDARY, size=18).image
         tk.Label(lane_label, image=self.lane_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
-        tk.Label(lane_label, text="LANE STATISTICS", font=FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        tk.Label(lane_label, text="LANE STATISTICS", font=theme.FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
         
         stats_frame = tk.LabelFrame(
             parent, labelwidget=lane_label,
@@ -333,29 +359,29 @@ class UltimateTrafficApp(tk.Tk):
         header = tk.Frame(stats_frame, bg=BG_SIDEBAR)
         header.pack(fill='x', padx=PAD_FRAME, pady=(PAD_SMALL, 0))
         
-        tk.Label(header, text="Lane", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=5).pack(side='left')
-        tk.Label(header, text="Avg", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=7).pack(side='left')
-        tk.Label(header, text="Max(60s)", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=8).pack(side='left')
-        tk.Label(header, text="LOS", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=4).pack(side='left')
-        tk.Label(header, text="Grade", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='right')
+        tk.Label(header, text="Lane", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=5).pack(side='left')
+        tk.Label(header, text="Avg", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=7).pack(side='left')
+        tk.Label(header, text="Max(60s)", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=8).pack(side='left')
+        tk.Label(header, text="LOS", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR, width=4).pack(side='left')
+        tk.Label(header, text="Grade", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='right')
         
         self.lane_labels = {}
         for lane in ['N', 'S', 'E', 'W']:
             row = tk.Frame(stats_frame, bg=BG_SIDEBAR)
             row.pack(fill='x', padx=PAD_FRAME, pady=PAD_ROW)
             
-            tk.Label(row, text=lane, font=FONT_LABEL, fg=TEXT_PRIMARY, bg=BG_SIDEBAR, width=5).pack(side='left')
+            tk.Label(row, text=lane, font=theme.FONT_LABEL, fg=TEXT_PRIMARY, bg=BG_SIDEBAR, width=5).pack(side='left')
             
-            wait_lbl = tk.Label(row, text="0.0s", font=FONT_VALUE_SMALL, fg=TEXT_PRIMARY, bg=BG_SIDEBAR, width=7)
+            wait_lbl = tk.Label(row, text="0.0s", font=theme.FONT_VALUE_SMALL, fg=TEXT_PRIMARY, bg=BG_SIDEBAR, width=7)
             wait_lbl.pack(side='left')
             
-            max_wait_lbl = tk.Label(row, text="0.0s", font=FONT_VALUE_SMALL, fg=TEXT_MUTED, bg=BG_SIDEBAR, width=8)
+            max_wait_lbl = tk.Label(row, text="0.0s", font=theme.FONT_VALUE_SMALL, fg=TEXT_MUTED, bg=BG_SIDEBAR, width=8)
             max_wait_lbl.pack(side='left')
             
-            los_lbl = tk.Label(row, text="A", font=FONT_VALUE_MEDIUM, fg=STATUS_GOOD, bg=BG_SIDEBAR, width=4)
+            los_lbl = tk.Label(row, text="A", font=theme.FONT_VALUE_MEDIUM, fg=STATUS_GOOD, bg=BG_SIDEBAR, width=4)
             los_lbl.pack(side='left')
             
-            grade_lbl = tk.Label(row, text="Free Flow", font=FONT_STATUS, fg=STATUS_GOOD, bg=BG_SIDEBAR)
+            grade_lbl = tk.Label(row, text="Free Flow", font=theme.FONT_STATUS, fg=STATUS_GOOD, bg=BG_SIDEBAR)
             grade_lbl.pack(side='right')
             
             self.lane_labels[lane] = {'wait': wait_lbl, 'max_wait': max_wait_lbl, 'los': los_lbl, 'grade': grade_lbl}
@@ -363,10 +389,10 @@ class UltimateTrafficApp(tk.Tk):
         overall_row = tk.Frame(stats_frame, bg=BG_DARK)
         overall_row.pack(fill='x', padx=PAD_FRAME, pady=(PAD_SMALL, PAD_SMALL))
         
-        tk.Label(overall_row, text="Overall:", font=FONT_LABEL_BOLD, fg=TEXT_PRIMARY, bg=BG_DARK).pack(side='left', padx=PAD_SMALL)
-        self.lbl_overall_los = tk.Label(overall_row, text="A", font=FONT_VALUE_LARGE, fg=STATUS_GOOD, bg=BG_DARK)
+        tk.Label(overall_row, text="Overall:", font=theme.FONT_LABEL_BOLD, fg=TEXT_PRIMARY, bg=BG_DARK).pack(side='left', padx=PAD_SMALL)
+        self.lbl_overall_los = tk.Label(overall_row, text="A", font=theme.FONT_VALUE_LARGE, fg=STATUS_GOOD, bg=BG_DARK)
         self.lbl_overall_los.pack(side='left', padx=PAD_MEDIUM)
-        self.lbl_overall_desc = tk.Label(overall_row, text="Free Flow", font=FONT_STATUS, fg=STATUS_GOOD, bg=BG_DARK)
+        self.lbl_overall_desc = tk.Label(overall_row, text="Free Flow", font=theme.FONT_STATUS, fg=STATUS_GOOD, bg=BG_DARK)
         self.lbl_overall_desc.pack(side='right', padx=PAD_SMALL)
 
     def _setup_fuzzy_engine(self, parent):
@@ -378,7 +404,7 @@ class UltimateTrafficApp(tk.Tk):
         fuzzy_label = tk.Frame(fuzzy_frame, bg=BG_SIDEBAR)
         self.fuzzy_icon_img = FAIcon("brain", color=ACCENT_SECONDARY, size=18).image
         tk.Label(fuzzy_label, image=self.fuzzy_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
-        tk.Label(fuzzy_label, text="FUZZY ENGINE - Membership Functions", font=FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        tk.Label(fuzzy_label, text="FUZZY ENGINE - Membership Functions", font=theme.FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
         
         mf_container = tk.LabelFrame(
             fuzzy_frame, labelwidget=fuzzy_label,
@@ -410,7 +436,7 @@ class UltimateTrafficApp(tk.Tk):
         rules_label = tk.Frame(fuzzy_frame, bg=BG_SIDEBAR)
         self.rules_icon_img = FAIcon("gear", color=TEXT_SECONDARY, size=18).image
         tk.Label(rules_label, image=self.rules_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
-        tk.Label(rules_label, text="Rule Weights", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        tk.Label(rules_label, text="Rule Weights", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
         
         rules_container = tk.LabelFrame(
             fuzzy_frame, labelwidget=rules_label,
@@ -420,17 +446,52 @@ class UltimateTrafficApp(tk.Tk):
         
         rules_content = tk.Frame(rules_container, bg=BG_SIDEBAR)
         rules_content.pack(fill='x', padx=PAD_FRAME, pady=PAD_SMALL)
-        self.cv_rules = tk.Canvas(
-            rules_content, height=130, bg=BG_DARK,
-            highlightthickness=1, highlightbackground=BORDER_DARK
-        )
-        self.cv_rules.pack(fill='x', expand=True)
+        
+        # Create rule rows with labels + canvas bars
+        self.rule_rows = {}
+        rule_definitions = [
+            ('keep_clear', 'KEEP Clear', 'w:1.4', RULE_KEEP),
+            ('batch', 'Batch', 'w:1.3', RULE_KEEP_ALT),
+            ('imbalance', 'Imbalance', 'w:1.3', RULE_SWITCH),
+            ('urgency', 'Urgency', 'w:1.5', RULE_SWITCH_TIME),
+            ('empty', 'Empty', 'w:1.6', RULE_SWITCH_EMPTY),
+            ('conflict', 'CONFLICT', 'w:0.7', RULE_CONFLICT),
+        ]
+        
+        for rule_id, rule_name, weight, color in rule_definitions:
+            row = tk.Frame(rules_content, bg=BG_DARK)
+            row.pack(fill='x', pady=1)
+            
+            # Rule name label
+            name_lbl = tk.Label(row, text=rule_name, font=theme.FONT_SMALL, fg=TEXT_PRIMARY, 
+                               bg=BG_DARK, width=10, anchor='e')
+            name_lbl.pack(side='left', padx=(PAD_SMALL, PAD_TINY))
+            
+            # Bar canvas (small, just for the progress bar)
+            bar_canvas = tk.Canvas(row, height=14, bg=BG_DARK, highlightthickness=0)
+            bar_canvas.pack(side='left', fill='x', expand=True, padx=PAD_TINY)
+            
+            # Value label
+            value_lbl = tk.Label(row, text="0.00", font=theme.FONT_TINY, fg=TEXT_MUTED, 
+                                bg=BG_DARK, width=5, anchor='w')
+            value_lbl.pack(side='left', padx=PAD_TINY)
+            
+            # Weight label
+            weight_lbl = tk.Label(row, text=weight, font=theme.FONT_TINY, fg=TEXT_DISABLED, 
+                                 bg=BG_DARK, width=5, anchor='w')
+            weight_lbl.pack(side='left', padx=(0, PAD_SMALL))
+            
+            self.rule_rows[rule_id] = {
+                'canvas': bar_canvas,
+                'value_lbl': value_lbl,
+                'color': color
+            }
         
         # Create label widget with icon and text for output
         output_label = tk.Frame(fuzzy_frame, bg=BG_SIDEBAR)
         self.output_icon_img = FAIcon("circle-check", color=TEXT_SECONDARY, size=18).image
         tk.Label(output_label, image=self.output_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
-        tk.Label(output_label, text="Decision Output", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        tk.Label(output_label, text="Decision Output", font=theme.FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
         
         output_container = tk.LabelFrame(
             fuzzy_frame, labelwidget=output_label,
@@ -452,7 +513,7 @@ class UltimateTrafficApp(tk.Tk):
         control_label = tk.Frame(parent, bg=BG_SIDEBAR)
         self.control_icon_img = FAIcon("sliders", color=ACCENT_PRIMARY, size=18).image
         tk.Label(control_label, image=self.control_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
-        tk.Label(control_label, text="CONTROLS", font=FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        tk.Label(control_label, text="CONTROLS", font=theme.FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
         
         control_frame = tk.LabelFrame(
             parent, labelwidget=control_label,
@@ -468,13 +529,13 @@ class UltimateTrafficApp(tk.Tk):
         
         tk.Label(
             demand_row, text="Demand (cars/min):",
-            fg=TEXT_SECONDARY, bg=BG_SIDEBAR, font=FONT_LABEL
+            fg=TEXT_SECONDARY, bg=BG_SIDEBAR, font=theme.FONT_LABEL
         ).pack(side='left')
         
         self.rate_var = tk.DoubleVar(value=40)
         self.lbl_rate_val = tk.Label(
             demand_row, text="40",
-            fg=ACCENT_PRIMARY, bg=BG_SIDEBAR, font=FONT_VALUE_MEDIUM
+            fg=ACCENT_PRIMARY, bg=BG_SIDEBAR, font=theme.FONT_VALUE_MEDIUM
         )
         self.lbl_rate_val.pack(side='right')
         
@@ -487,7 +548,7 @@ class UltimateTrafficApp(tk.Tk):
             self.draw_gauge()
         
         ttk.Scale(
-            content, from_=10, to=200,
+            content, from_=10, to=400,
             variable=self.rate_var, command=update_rate, style='Horizontal.TScale'
         ).pack(fill='x', pady=PAD_ELEMENT)
         
@@ -669,8 +730,48 @@ class UltimateTrafficApp(tk.Tk):
             self.cv_input_c, "Urgency Index", urgency_index, mu_c,
             sets[6], sets[7], sets[8], 5
         )
-        self.fuzzy_viz.draw_rules_expanded(self.cv_rules, rules, flow_ratio, mu_f)
+        self.update_rule_bars(rules)
         self.fuzzy_viz.draw_output_expanded(self.cv_output, score, rules, switch_threshold)
+    
+    def update_rule_bars(self, rules):
+        """Update the rule bar visualizations"""
+        r1_total, r2_imbalance, r2_urgent, r3_total, r2_empty, r1_batch = rules
+        
+        rule_values = {
+            'keep_clear': r1_total,
+            'batch': r1_batch,
+            'imbalance': r2_imbalance,
+            'urgency': r2_urgent,
+            'empty': r2_empty,
+            'conflict': r3_total,
+        }
+        
+        for rule_id, value in rule_values.items():
+            if rule_id not in self.rule_rows:
+                continue
+            row = self.rule_rows[rule_id]
+            canvas = row['canvas']
+            value_lbl = row['value_lbl']
+            color = row['color']
+            
+            # Update value label
+            value_lbl.config(text=f"{value:.2f}")
+            
+            # Draw bar on canvas
+            canvas.delete("all")
+            w = canvas.winfo_width()
+            h = canvas.winfo_height()
+            if w < 10:
+                w = 150
+            if h < 5:
+                h = 14
+            
+            # Background
+            canvas.create_rectangle(0, 0, w, h, fill=BG_DARK, outline="")
+            
+            # Fill bar (max value is 2.0 for scaling)
+            bar_width = w * min(value, 2.0) / 2.0
+            canvas.create_rectangle(0, 0, bar_width, h, fill=color, outline="")
 
     # =========================================================================
     # PHYSICS & SPAWNING
@@ -852,12 +953,12 @@ class UltimateTrafficApp(tk.Tk):
         c.create_line(rw_min_x, 5, rw_min_x, h-5, fill=ACCENT_TERTIARY, width=2)
         c.create_line(rw_max_x, 5, rw_max_x, h-5, fill=ACCENT_TERTIARY, width=2)
         c.create_line(rw_min_x, h-5, rw_max_x, h-5, fill=ACCENT_TERTIARY, width=1, dash=(2,2))
-        c.create_text((rw_min_x + rw_max_x)/2, h-2, text="Real-World", fill=ACCENT_TERTIARY, font=FONT_MICRO, anchor='s')
+        c.create_text((rw_min_x + rw_max_x)/2, h-2, text="Real-World", fill=ACCENT_TERTIARY, font=theme.FONT_MICRO, anchor='s')
         
         demand_x = to_x(self.target_flow)
         c.create_line(demand_x, 3, demand_x, h-8, fill=GAUGE_DEMAND_LINE, width=3)
         c.create_polygon(demand_x-5, 3, demand_x+5, 3, demand_x, 10, fill=GAUGE_DEMAND_LINE)
-        c.create_text(demand_x, 3, text=f"{self.target_flow:.0f}", fill=GAUGE_DEMAND_LINE, font=FONT_MICRO, anchor='s')
+        c.create_text(demand_x, 3, text=f"{self.target_flow:.0f}", fill=GAUGE_DEMAND_LINE, font=theme.FONT_MICRO, anchor='s')
         
         flow_x = min(to_x(self.current_flow), w - 2)
         bar_y1, bar_y2 = 15, h - 12
@@ -865,14 +966,14 @@ class UltimateTrafficApp(tk.Tk):
         bar_color = STATUS_GOOD if ratio >= 0.9 else (STATUS_WARNING if ratio >= 0.7 else STATUS_ERROR)
         c.create_rectangle(2, bar_y1, flow_x, bar_y2, fill=bar_color, outline=ACCENT_PRIMARY, width=1)
         
-        c.create_text(flow_x + 5, (bar_y1+bar_y2)/2, text=f"{self.current_flow:.0f}", fill=TEXT_PRIMARY, font=FONT_LABEL_BOLD, anchor='w')
+        c.create_text(flow_x + 5, (bar_y1+bar_y2)/2, text=f"{self.current_flow:.0f}", fill=TEXT_PRIMARY, font=theme.FONT_LABEL_BOLD, anchor='w')
         
         for val in [0, 25, 50, 75, 100]:
             if val <= max_scale:
                 x = to_x(val)
                 c.create_line(x, h-3, x, h, fill=TEXT_MUTED, width=1)
                 if 0 < val < max_scale * 0.95:
-                    c.create_text(x, h, text=str(val), fill=TEXT_MUTED, font=FONT_MICRO, anchor='n')
+                    c.create_text(x, h, text=str(val), fill=TEXT_MUTED, font=theme.FONT_MICRO, anchor='n')
 
     # =========================================================================
     # LANE STATISTICS & LEVEL OF SERVICE
@@ -936,7 +1037,7 @@ class UltimateTrafficApp(tk.Tk):
         
         demand_y = pad + gh - (self.target_flow / max_val * gh)
         c.create_line(pad, demand_y, pad + gw, demand_y, fill=GAUGE_DEMAND_LINE, width=1, dash=(4, 2))
-        c.create_text(pad + gw + 2, demand_y, text="Dem", fill=GAUGE_DEMAND_LINE, font=FONT_MICRO, anchor='w')
+        c.create_text(pad + gw + 2, demand_y, text="Dem", fill=GAUGE_DEMAND_LINE, font=theme.FONT_MICRO, anchor='w')
         
         if len(self.throughput_history) > 1:
             n = len(self.throughput_history)
@@ -946,9 +1047,9 @@ class UltimateTrafficApp(tk.Tk):
                 lx, ly = points[-2], points[-1]
                 c.create_oval(lx - 4, ly - 4, lx + 4, ly + 4, fill=ACCENT_PRIMARY, outline=TEXT_PRIMARY)
         
-        c.create_text(pad - 2, pad, text=f"{int(max_val)}", fill=TEXT_MUTED, font=FONT_MICRO, anchor='e')
-        c.create_text(pad - 2, pad + gh, text="0", fill=TEXT_MUTED, font=FONT_MICRO, anchor='e')
-        c.create_text(pad + gw - 5, pad + 5, text=f"{self.current_flow:.1f}", fill=TEXT_PRIMARY, font=FONT_VALUE_SMALL, anchor='ne')
+        c.create_text(pad - 2, pad, text=f"{int(max_val)}", fill=TEXT_MUTED, font=theme.FONT_MICRO, anchor='e')
+        c.create_text(pad - 2, pad + gh, text="0", fill=TEXT_MUTED, font=theme.FONT_MICRO, anchor='e')
+        c.create_text(pad + gw - 5, pad + 5, text=f"{self.current_flow:.1f}", fill=TEXT_PRIMARY, font=theme.FONT_VALUE_SMALL, anchor='ne')
 
     # =========================================================================
     # DRAWING
@@ -982,7 +1083,7 @@ class UltimateTrafficApp(tk.Tk):
             elif lane == 'S': pos = (cx, cy + rw / 2 + 50)
             elif lane == 'W': pos = (cx - rw / 2 - 50, cy)
             elif lane == 'E': pos = (cx + rw / 2 + 50, cy)
-            c.create_text(pos, text=txt, fill=TEXT_PRIMARY, font=FONT_VALUE_SMALL)
+            c.create_text(pos, text=txt, fill=TEXT_PRIMARY, font=theme.FONT_VALUE_SMALL)
         
         self._draw_light(c, 'N', cx - rw / 2 - 25, cy - rw / 2 - 25)
         self._draw_light(c, 'S', cx + rw / 2 + 25, cy + rw / 2 + 25)
