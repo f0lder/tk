@@ -770,13 +770,15 @@ class UltimateTrafficApp(tk.Tk):
         
         # Compare simulation to real-world expected
         if flow < expected_rw_low:
-            comp_text = f"Below expected"
+            percentage_decrease = ((expected_rw_low - flow) / expected_rw_low) * 100 if expected_rw_low > 0 else 0
+            comp_text = f"-{percentage_decrease:.0f}% vs Real"
             comp_color = STATUS_WARNING
         elif flow <= expected_rw_high:
             comp_text = f"Realistic ✓"
             comp_color = STATUS_GOOD
         else:
-            comp_text = f"Exceeds real!"
+            percentage_increase = ((flow - expected_rw_high) / expected_rw_high) * 100 if expected_rw_high > 0 else 0
+            comp_text = f"+{percentage_increase:.0f}% vs Real"
             comp_color = ACCENT_PRIMARY
         
         self.lbl_comparison.config(text=comp_text, fg=comp_color)
