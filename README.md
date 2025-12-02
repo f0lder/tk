@@ -4,23 +4,26 @@ A real-time traffic simulation with an intelligent fuzzy logic controller that o
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue) ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-green) ![Fuzzy Logic](https://img.shields.io/badge/AI-Fuzzy%20Logic-orange)
 
+![Simulation Screenshot](thumb.png)
+
 ---
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Fuzzy Logic Algorithm](#fuzzy-logic-algorithm)
+2. [Screenshot](#screenshot)
+3. [Architecture](#architecture)
+4. [Fuzzy Logic Algorithm](#fuzzy-logic-algorithm)
    - [Inputs](#inputs)
    - [Membership Functions](#membership-functions)
    - [Fuzzy Rules](#fuzzy-rules)
    - [Defuzzification](#defuzzification)
    - [Post-Processing Adjustments](#post-processing-adjustments)
-4. [Finite State Machine (FSM)](#finite-state-machine-fsm)
-5. [Metrics & Calculations](#metrics--calculations)
-6. [Car Physics](#car-physics)
-7. [File Structure](#file-structure)
-8. [Usage](#usage)
+5. [Finite State Machine (FSM)](#finite-state-machine-fsm)
+6. [Metrics & Calculations](#metrics--calculations)
+7. [Car Physics](#car-physics)
+8. [File Structure](#file-structure)
+9. [Usage](#usage)
 
 ---
 
@@ -33,6 +36,27 @@ Neuro-Traffic simulates a 4-way intersection with intelligent traffic light cont
 - **Driver Urgency**: Combined measure of wait time and frustration level
 
 The goal is to maximize **throughput** (cars per minute) while ensuring **fairness** (no lane waits too long).
+
+---
+
+## Screenshot
+
+The dashboard provides a comprehensive, real-time view of the simulation and the fuzzy logic controller's internal state.
+
+1.  **Simulation Canvas**: Visual representation of the intersection, traffic, and signal states.
+2.  **Flow Analyzer**:
+    *   **Gauges**: Compare real-time throughput against demand and theoretical capacity.
+    *   **History Graph**: Tracks throughput over the last 60 seconds.
+3.  **Lane Statistics**:
+    *   **Avg/Max Wait**: Average and maximum vehicle wait times per lane.
+    *   **Level of Service (LOS)**: Grades each lane's performance from A (Free Flow) to F (Failure) based on HCM standards.
+4.  **Fuzzy Engine**:
+    *   **Membership Functions**: Visualizes the fuzzification of the three primary inputs (Clearance Time, Imbalance Ratio, Urgency Index).
+    *   **Rule Weights**: Shows the activation strength of each fuzzy rule.
+    *   **Decision Output**: Displays the final defuzzified score and the resulting SWITCH or KEEP decision.
+5.  **Controls**:
+    *   **Demand Slider**: Dynamically adjust the traffic volume.
+    *   **Surge Traffic**: Injects a burst of vehicles to test the system's responsiveness.
 
 ---
 
@@ -259,12 +283,12 @@ The traffic light controller uses a 3-state FSM:
                     │  (Active lane = green)   │
                     └──────────┬───────────────┘
                                │
-            ┌──────────────────┼──────────────────┐
+            ┌────────────────--┼──────────────────┐
             │   Conditions to switch:             │
             │   • timer > min_green AND score < 35│
             │   • timer > max_green               │
             │   • active_q = 0 AND waiting > 0    │
-            └──────────────────┼──────────────────┘
+            └────────────────--┼──────────────────┘
                                ▼
                     ┌──────────────────────────┐
                     │         YELLOW           │
@@ -277,11 +301,11 @@ The traffic light controller uses a 3-state FSM:
                     │  (Clear intersection)    │
                     └──────────┬───────────────┘
                                │
-            ┌──────────────────┼──────────────────┐
+            ┌────────────────--┼──────────────────┐
             │   Transition when:                  │
             │   • No cars in intersection         │
             │   • timer > 15 ticks                │
-            └──────────────────┼──────────────────┘
+            └────────────────--┼──────────────────┘
                                │
                                ▼
                     ┌──────────────────────────┐
