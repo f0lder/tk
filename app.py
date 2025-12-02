@@ -12,6 +12,7 @@ from collections import deque
 
 # Local imports
 from car import Car
+from ttkbootstrap_icons_fa.icon import FAIcon
 from theme import (
     # Background colors
     BG_MAIN, BG_SIDEBAR, BG_PANEL, BG_CANVAS, BG_DARK,
@@ -214,10 +215,15 @@ class UltimateTrafficApp(tk.Tk):
 
     def _setup_flow_analyzer(self, parent):
         """Setup Flow Analyzer section"""
+        # Create label widget with icon and text
+        flow_label = tk.Frame(parent, bg=BG_SIDEBAR)
+        self.flow_icon_img = FAIcon("chart-line", color=ACCENT_PRIMARY, size=18).image
+        tk.Label(flow_label, image=self.flow_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
+        tk.Label(flow_label, text="FLOW ANALYZER", font=FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        
         bench_frame = tk.LabelFrame(
-            parent, text="FLOW ANALYZER",
-            font=FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR,
-            bd=1, relief='solid'
+            parent, labelwidget=flow_label,
+            bg=BG_SIDEBAR, bd=1, relief='solid'
         )
         bench_frame.pack(fill='x', padx=PAD_MEDIUM, pady=PAD_SECTION_TOP)
         
@@ -312,10 +318,15 @@ class UltimateTrafficApp(tk.Tk):
 
     def _setup_lane_stats(self, parent):
         """Setup Lane Statistics section with mean wait time and LOS"""
+        # Create label widget with icon and text
+        lane_label = tk.Frame(parent, bg=BG_SIDEBAR)
+        self.lane_icon_img = FAIcon("road", color=ACCENT_SECONDARY, size=18).image
+        tk.Label(lane_label, image=self.lane_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
+        tk.Label(lane_label, text="LANE STATISTICS", font=FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        
         stats_frame = tk.LabelFrame(
-            parent, text="LANE STATISTICS",
-            font=FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR,
-            bd=1, relief='solid'
+            parent, labelwidget=lane_label,
+            bg=BG_SIDEBAR, bd=1, relief='solid'
         )
         stats_frame.pack(fill='x', padx=PAD_MEDIUM, pady=PAD_SECTION_START)
         
@@ -363,10 +374,15 @@ class UltimateTrafficApp(tk.Tk):
         fuzzy_frame = tk.Frame(parent, bg=BG_SIDEBAR)
         fuzzy_frame.pack(fill='x', padx=PAD_MEDIUM, pady=(PAD_LARGE, 0))
         
+        # Create label widget with icon and text for fuzzy engine
+        fuzzy_label = tk.Frame(fuzzy_frame, bg=BG_SIDEBAR)
+        self.fuzzy_icon_img = FAIcon("brain", color=ACCENT_SECONDARY, size=18).image
+        tk.Label(fuzzy_label, image=self.fuzzy_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
+        tk.Label(fuzzy_label, text="FUZZY ENGINE - Membership Functions", font=FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        
         mf_container = tk.LabelFrame(
-            fuzzy_frame, text="FUZZY ENGINE - Membership Functions",
-            font=FONT_LABEL_BOLD, fg=ACCENT_SECONDARY, bg=BG_SIDEBAR,
-            bd=1, relief='solid'
+            fuzzy_frame, labelwidget=fuzzy_label,
+            bg=BG_SIDEBAR, bd=1, relief='solid'
         )
         mf_container.pack(fill='x', pady=PAD_ELEMENT)
         
@@ -390,10 +406,15 @@ class UltimateTrafficApp(tk.Tk):
         self.cv_input_b = create_graph_canvas(inputs_row, 1)
         self.cv_input_c = create_graph_canvas(inputs_row, 2)
         
+        # Create label widget with icon and text for rules
+        rules_label = tk.Frame(fuzzy_frame, bg=BG_SIDEBAR)
+        self.rules_icon_img = FAIcon("gear", color=TEXT_SECONDARY, size=18).image
+        tk.Label(rules_label, image=self.rules_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
+        tk.Label(rules_label, text="Rule Weights", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        
         rules_container = tk.LabelFrame(
-            fuzzy_frame, text="Rule Weights",
-            font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR,
-            bd=1, relief='solid'
+            fuzzy_frame, labelwidget=rules_label,
+            bg=BG_SIDEBAR, bd=1, relief='solid'
         )
         rules_container.pack(fill='x', pady=PAD_ELEMENT)
         
@@ -405,10 +426,15 @@ class UltimateTrafficApp(tk.Tk):
         )
         self.cv_rules.pack(fill='x', expand=True)
         
+        # Create label widget with icon and text for output
+        output_label = tk.Frame(fuzzy_frame, bg=BG_SIDEBAR)
+        self.output_icon_img = FAIcon("circle-check", color=TEXT_SECONDARY, size=18).image
+        tk.Label(output_label, image=self.output_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
+        tk.Label(output_label, text="Decision Output", font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        
         output_container = tk.LabelFrame(
-            fuzzy_frame, text="Decision Output",
-            font=FONT_LABEL_BOLD, fg=TEXT_SECONDARY, bg=BG_SIDEBAR,
-            bd=1, relief='solid'
+            fuzzy_frame, labelwidget=output_label,
+            bg=BG_SIDEBAR, bd=1, relief='solid'
         )
         output_container.pack(fill='x', pady=PAD_ELEMENT)
         
@@ -422,10 +448,15 @@ class UltimateTrafficApp(tk.Tk):
 
     def _setup_controls(self, parent):
         """Setup Controls section"""
+        # Create label widget with icon and text
+        control_label = tk.Frame(parent, bg=BG_SIDEBAR)
+        self.control_icon_img = FAIcon("sliders", color=ACCENT_PRIMARY, size=18).image
+        tk.Label(control_label, image=self.control_icon_img, bg=BG_SIDEBAR).pack(side='left', padx=(0, 6), pady=2)
+        tk.Label(control_label, text="CONTROLS", font=FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR).pack(side='left', pady=2)
+        
         control_frame = tk.LabelFrame(
-            parent, text="CONTROLS",
-            font=FONT_LABEL_BOLD, fg=ACCENT_PRIMARY, bg=BG_SIDEBAR,
-            bd=1, relief='solid'
+            parent, labelwidget=control_label,
+            bg=BG_SIDEBAR, bd=1, relief='solid'
         )
         control_frame.pack(fill='x', padx=PAD_MEDIUM, pady=PAD_SECTION_START)
         
