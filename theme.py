@@ -1,101 +1,105 @@
 # =============================================================================
-# THEME.PY - Centralized Color and Style Definitions
+# THEME.PY - Centralized Color and Style Definitions (Monochrome)
 # =============================================================================
+
+# -----------------------------------------------------------------------------
+# BASE PALETTE
+# -----------------------------------------------------------------------------
+BLACK = "#1a1a1a"
+WHITE = "#f0f0f0"
+GREY_DARK = "#2b2b2b"
+GREY_MEDIUM = "#404040"
+GREY_LIGHT = "#666666"
+ACCENT = "#00aaff" # A muted blue for highlights
 
 # -----------------------------------------------------------------------------
 # BACKGROUND COLORS
 # -----------------------------------------------------------------------------
-BG_MAIN = "#121212"          # Main application background
-BG_SIDEBAR = "#181818"       # Sidebar background
-BG_PANEL = "#222222"         # Panel/frame background
-BG_CANVAS = "#2b2b2b"        # Main canvas background
-BG_DARK = "#111111"          # Darker elements (gauges, graphs)
-BG_ROAD = "#333333"          # Road surface
-BG_INTERSECTION = "#222222"  # Intersection center
+BG_MAIN = BLACK
+BG_SIDEBAR = "#212121"
+BG_PANEL = GREY_DARK
+BG_CANVAS = GREY_DARK
+BG_DARK = BLACK
+BG_ROAD = GREY_MEDIUM
+BG_INTERSECTION = GREY_DARK
 
 # -----------------------------------------------------------------------------
 # TEXT COLORS
 # -----------------------------------------------------------------------------
-TEXT_PRIMARY = "#ffffff"     # Main text
-TEXT_SECONDARY = "#aaaaaa"   # Secondary/label text
-TEXT_MUTED = "#888888"       # Muted/dimmed text
-TEXT_DISABLED = "#666666"    # Disabled/weight text
+TEXT_PRIMARY = WHITE
+TEXT_SECONDARY = "#b3b3b3"
+TEXT_MUTED = "#808080"
+TEXT_DISABLED = GREY_LIGHT
 
 # -----------------------------------------------------------------------------
 # ACCENT COLORS
 # -----------------------------------------------------------------------------
-ACCENT_PRIMARY = "#00bfff"   # Cyan - primary accent (headers, highlights)
-ACCENT_SECONDARY = "#ff8800" # Orange - secondary accent (section headers)
-ACCENT_TERTIARY = "#00ffff"  # Bright cyan - timer/indicators
+ACCENT_PRIMARY = ACCENT
+ACCENT_SECONDARY = ACCENT
+ACCENT_TERTIARY = ACCENT
 
 # -----------------------------------------------------------------------------
-# STATUS COLORS - Traffic Light
+# STATUS COLORS - Traffic Light (Monochrome friendly)
 # -----------------------------------------------------------------------------
-LIGHT_GREEN = "#00ff00"
-LIGHT_YELLOW = "#ffff00"
-LIGHT_RED = "#ff0000"
+LIGHT_GREEN = "#77dd77"  # Soft Green
+LIGHT_YELLOW = "#fdfd96" # Soft Yellow
+LIGHT_RED = "#ff6961"    # Soft Red
 
 # -----------------------------------------------------------------------------
-# STATUS COLORS - Performance Indicators
+# STATUS COLORS - Performance Indicators (Using shades of the accent color)
 # -----------------------------------------------------------------------------
-STATUS_GOOD = "#00ff00"      # Good/success/flowing
-STATUS_WARNING = "#ffaa00"   # Warning/building/partial
-STATUS_ERROR = "#ff4444"     # Error/congested/critical
+STATUS_GOOD = "#50c878" # Emerald
+STATUS_WARNING = "#fcae1e" # Amber
+STATUS_ERROR = "#ff6347" # Tomato
 
 # -----------------------------------------------------------------------------
-# MEMBERSHIP FUNCTION COLORS (Fuzzy Logic)
+# MEMBERSHIP FUNCTION, RULE, AND OUTPUT COLORS
 # -----------------------------------------------------------------------------
-MF_LOW = "#00ff00"           # Low membership - green
-MF_MEDIUM = "#ffaa00"        # Medium membership - orange
-MF_HIGH = "#ff0000"          # High membership - red
+MF_LOW = STATUS_GOOD
+MF_MEDIUM = STATUS_WARNING
+MF_HIGH = STATUS_ERROR
 
-# -----------------------------------------------------------------------------
-# RULE COLORS (Fuzzy Logic)
-# -----------------------------------------------------------------------------
-RULE_KEEP = "#00ff00"        # Keep rules - green
-RULE_KEEP_ALT = "#00cc00"    # Keep batch - darker green
-RULE_SWITCH = "#ff4444"      # Switch queue - red
-RULE_SWITCH_TIME = "#ff00ff" # Switch time - magenta
-RULE_SWITCH_EMPTY = "#ff0066"# Switch empty - pink
-RULE_CONFLICT = "#ff8800"    # Conflict - orange
+RULE_KEEP = STATUS_GOOD
+RULE_KEEP_ALT = "#3d9a5f" # Darker Emerald
+RULE_SWITCH = STATUS_ERROR
+RULE_SWITCH_TIME = "#ff8596" # Lighter Tomato
+RULE_SWITCH_EMPTY = "#ff4d64" # Darker Tomato
+RULE_CONFLICT = STATUS_WARNING
 
-# -----------------------------------------------------------------------------
-# OUTPUT REGION COLORS
-# -----------------------------------------------------------------------------
-OUT_SWITCH = "#cf3030"       # Switch region fill
-OUT_HOLD = "#cf8f30"         # Hold region fill
-OUT_KEEP = "#30cf30"         # Keep region fill
+OUT_SWITCH = STATUS_ERROR
+OUT_HOLD = STATUS_WARNING
+OUT_KEEP = STATUS_GOOD
 
 # -----------------------------------------------------------------------------
 # GAUGE COLORS
 # -----------------------------------------------------------------------------
-GAUGE_UNDER_CAPACITY = "#1a3a1a"   # Green zone background
-GAUGE_OVER_CAPACITY = "#3a1a1a"   # Red zone background
-GAUGE_CAPACITY_LINE = "#00aaff"   # Capacity marker
-GAUGE_DEMAND_LINE = "#ff8800"     # Demand marker (orange)
+GAUGE_UNDER_CAPACITY = "#334c44" # Dark green-ish
+GAUGE_OVER_CAPACITY = "#4d3333"  # Dark red-ish
+GAUGE_CAPACITY_LINE = ACCENT
+GAUGE_DEMAND_LINE = STATUS_WARNING
 
 # -----------------------------------------------------------------------------
 # FLOW INDICATOR COLORS
 # -----------------------------------------------------------------------------
-FLOW_PRIMARY = "#00bfff"     # Flow text/values
-FLOW_LOW = "#ff4444"         # Underperforming
-FLOW_MED = "#ffaa00"         # On target
-FLOW_HIGH = "#00ff00"        # Exceeding
+FLOW_PRIMARY = ACCENT
+FLOW_LOW = STATUS_ERROR
+FLOW_MED = STATUS_WARNING
+FLOW_HIGH = STATUS_GOOD
 
 # -----------------------------------------------------------------------------
-# CAR COLORS (aligned with STATUS colors for consistency)
+# CAR COLORS
 # -----------------------------------------------------------------------------
-CAR_NORMAL = "#00ffff"       # Moving car - cyan (matches ACCENT_TERTIARY)
-CAR_WAITING = "#ff4444"      # Stopped/waiting car - red (matches STATUS_ERROR)
-CAR_ANGRY = "#aa00ff"        # Frustrated car - purple (rage indicator)
+CAR_NORMAL = ACCENT
+CAR_WAITING = STATUS_ERROR
+CAR_ANGRY = "#d450ff" # A brighter purple for "angry"
 
 # -----------------------------------------------------------------------------
 # UI ELEMENT COLORS
 # -----------------------------------------------------------------------------
-BORDER_LIGHT = "#555555"     # Light borders
-BORDER_DARK = "#333333"      # Dark borders
-BORDER_HIGHLIGHT = "#444444" # Highlight borders
-OVERFLOW_QUEUE = "#800080"   # Purple - virtual queue overflow
+BORDER_LIGHT = GREY_MEDIUM
+BORDER_DARK = "#202020"
+BORDER_HIGHLIGHT = GREY_LIGHT
+OVERFLOW_QUEUE = "#b366ff" # Muted purple
 
 # -----------------------------------------------------------------------------
 # FONTS - Using Segoe UI for consistency across all UI elements
