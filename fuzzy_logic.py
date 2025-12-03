@@ -271,14 +271,16 @@ class FuzzyLogicController:
             'imbalance_ratio': imbalance_ratio,
             'urgency_index': urgency_index
         }
-        
+
+        # pack the rules return
+
         return (
             score,
             (mu_clear_short, mu_clear_med, mu_clear_long),
             (mu_imbal_low, mu_imbal_med, mu_imbal_high),
             (mu_urg_low, mu_urg_med, mu_urg_high),
             (0, 0, 0),  # Placeholder for 4th input (not used)
-            (r1_total, r2_imbalance, r2_urgent, r3_total, r2_empty, r1_batch),
+            (r1_clearing, r1_efficient,r1_batch, r2_imbalance, r2_empty, r2_urgent, r3_balanced,r3_conflict, r3_total,r1_total),
             (self.CLEAR_SHORT, self.CLEAR_MED, self.CLEAR_LONG,
              self.IMBAL_LOW, self.IMBAL_MED, self.IMBAL_HIGH,
              self.URG_LOW, self.URG_MED, self.URG_HIGH)
@@ -481,7 +483,7 @@ class FuzzyVisualizer:
             rules: Tuple of rule activation values
             threshold: Switch threshold value
         """
-        r1_total, r2_imbalance, r2_urgent, r3_total, r2_empty, r1_batch = rules
+        r1_clearing, r1_efficient, r1_batch, r2_imbalance, r2_empty, r2_urgent, r3_balance, r3_conflict, r3_total, r1_total = rules
         r2_total = max(r2_imbalance, r2_urgent, r2_empty)
         
         cv.delete("all")

@@ -152,6 +152,15 @@ class UltimateTrafficApp(tk.Tk):
 
         # --- Scale ---
         self.style.configure('Horizontal.TScale', background=BG_SIDEBAR)
+        
+        # --- Notebook (Tabs) ---
+        self.style.configure('TNotebook', background=BG_MAIN, borderwidth=0)
+        self.style.configure('TNotebook.Tab', background=BG_DARK, foreground=TEXT_MUTED, 
+                            font=theme.FONT_LABEL_BOLD, padding=[12, 6])
+        self.style.map('TNotebook.Tab',
+            background=[('selected', BG_SIDEBAR), ('!selected', BG_DARK)],
+            foreground=[('selected', ACCENT_PRIMARY), ('!selected', TEXT_MUTED)],
+        )
 
     def setup_ui(self):
         """Setup the main UI layout"""
@@ -183,13 +192,7 @@ class UltimateTrafficApp(tk.Tk):
         self.sidebar = ttk.Frame(self.main_pane, width=650)
         self.main_pane.add(self.sidebar, weight=0)
         
-        self._setup_scrollable_sidebar()
-        
-        ctrl = self.scrollable_frame
-        self._setup_flow_analyzer(ctrl)
-        self._setup_lane_stats(ctrl)
-        self._setup_fuzzy_engine(ctrl)
-        self._setup_controls(ctrl)
+        self._setup_tabbed_sidebar()
         
         self.sidebar.bind('<Configure>', self._on_sidebar_resize)
 
@@ -204,40 +207,79 @@ class UltimateTrafficApp(tk.Tk):
         # Reapply styles with updated fonts
         self.setup_styles()
         
-        # Destroy old scrollable content
-        for widget in self.scrollable_frame.winfo_children():
+        # Destroy old scrollable content in both tabs
+        for widget in self.dashboard_frame.winfo_children():
+            widget.destroy()
+        for widget in self.fuzzy_frame.winfo_children():
             widget.destroy()
         
         # Rebuild sidebar sections
-        ctrl = self.scrollable_frame
-        self._setup_flow_analyzer(ctrl)
-        self._setup_lane_stats(ctrl)
-        self._setup_fuzzy_engine(ctrl)
-        self._setup_controls(ctrl)
+        self._setup_flow_analyzer(self.dashboard_frame)
+        self._setup_lane_stats(self.dashboard_frame)
+        self._setup_controls(self.dashboard_frame)
+        self._setup_fuzzy_engine(self.fuzzy_frame)
         
-        # Update scroll region
-        self.scrollable_frame.update_idletasks()
-        self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox('all'))
+        # Update scroll regions
+        self.dashboard_frame.update_idletasks()
+        self.dashboard_canvas.configure(scrollregion=self.dashboard_canvas.bbox('all'))
+        self.fuzzy_frame.update_idletasks()
+        self.fuzzy_canvas.configure(scrollregion=self.fuzzy_canvas.bbox('all'))
 
-    def _setup_scrollable_sidebar(self):
-        """Setup scrollable sidebar content"""
-        self.sidebar_canvas = tk.Canvas(self.sidebar, bg=BG_SIDEBAR, highlightthickness=0)
-        self.sidebar_scrollbar = ttk.Scrollbar(self.sidebar, orient='vertical', command=self.sidebar_canvas.yview)
-        self.scrollable_frame = tk.Frame(self.sidebar_canvas, bg=BG_SIDEBAR)
+    def _setup_tabbed_sidebar(self):
+        """Setup tabbed sidebar with Dashboard and Fuzzy Engine tabs"""
+        # Create notebook for tabs
+        self.sidebar_notebook = ttk.Notebook(self.sidebar)
+        self.sidebar_notebook.pack(fill='both', expand=True)
         
-        self.scrollable_frame.bind(
+        # Dashboard tab with scrollable content
+        dashboard_tab = ttk.Frame(self.sidebar_notebook)
+        self.sidebar_notebook.add(dashboard_tab, text='📊 Dashboard')
+        
+        self.dashboard_canvas = tk.Canvas(dashboard_tab, bg=BG_SIDEBAR, highlightthickness=0)
+        self.dashboard_scrollbar = ttk.Scrollbar(dashboard_tab, orient='vertical', command=self.dashboard_canvas.yview)
+        self.dashboard_frame = tk.Frame(self.dashboard_canvas, bg=BG_SIDEBAR)
+        
+        self.dashboard_frame.bind(
             '<Configure>',
-            lambda e: self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox('all'))
+            lambda e: self.dashboard_canvas.configure(scrollregion=self.dashboard_canvas.bbox('all'))
         )
         
-        self.sidebar_canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw')
-        self.sidebar_canvas.configure(yscrollcommand=self.sidebar_scrollbar.set)
+        self.dashboard_canvas.create_window((0, 0), window=self.dashboard_frame, anchor='nw')
+        self.dashboard_canvas.configure(yscrollcommand=self.dashboard_scrollbar.set)
         
-        self.sidebar_scrollbar.pack(side='right', fill='y')
-        self.sidebar_canvas.pack(side='left', fill='both', expand=True)
+        self.dashboard_scrollbar.pack(side='right', fill='y')
+        self.dashboard_canvas.pack(side='left', fill='both', expand=True)
         
-        self.sidebar_canvas.bind('<Enter>', lambda e: self._bind_mousewheel())
-        self.sidebar_canvas.bind('<Leave>', lambda e: self._unbind_mousewheel())
+        # Fuzzy Engine tab with scrollable content
+        fuzzy_tab = ttk.Frame(self.sidebar_notebook)
+        self.sidebar_notebook.add(fuzzy_tab, text='🧠 Fuzzy Engine')
+        
+        self.fuzzy_canvas = tk.Canvas(fuzzy_tab, bg=BG_SIDEBAR, highlightthickness=0)
+        self.fuzzy_scrollbar = ttk.Scrollbar(fuzzy_tab, orient='vertical', command=self.fuzzy_canvas.yview)
+        self.fuzzy_frame = tk.Frame(self.fuzzy_canvas, bg=BG_SIDEBAR)
+        
+        self.fuzzy_frame.bind(
+            '<Configure>',
+            lambda e: self.fuzzy_canvas.configure(scrollregion=self.fuzzy_canvas.bbox('all'))
+        )
+        
+        self.fuzzy_canvas.create_window((0, 0), window=self.fuzzy_frame, anchor='nw')
+        self.fuzzy_canvas.configure(yscrollcommand=self.fuzzy_scrollbar.set)
+        
+        self.fuzzy_scrollbar.pack(side='right', fill='y')
+        self.fuzzy_canvas.pack(side='left', fill='both', expand=True)
+        
+        # Setup content for each tab
+        self._setup_flow_analyzer(self.dashboard_frame)
+        self._setup_lane_stats(self.dashboard_frame)
+        self._setup_controls(self.dashboard_frame)
+        self._setup_fuzzy_engine(self.fuzzy_frame)
+        
+        # Bind mousewheel to both canvases
+        self.dashboard_canvas.bind('<Enter>', lambda e: self._bind_mousewheel_to(self.dashboard_canvas))
+        self.dashboard_canvas.bind('<Leave>', lambda e: self._unbind_mousewheel())
+        self.fuzzy_canvas.bind('<Enter>', lambda e: self._bind_mousewheel_to(self.fuzzy_canvas))
+        self.fuzzy_canvas.bind('<Leave>', lambda e: self._unbind_mousewheel())
 
     def _setup_flow_analyzer(self, parent):
         """Setup Flow Analyzer section"""
@@ -448,14 +490,26 @@ class UltimateTrafficApp(tk.Tk):
         rules_content.pack(fill='x', padx=PAD_FRAME, pady=PAD_SMALL)
         
         # Create rule rows with labels + canvas bars
+        #        rule_values = {
+        #    'clearing': r1_clearing,
+         #   'efficient': r1_efficient,
+          #  'batch': r1_batch,
+          #  'imbalance': r2_imbalance,
+          #  'urgency': r2_urgent,
+          #  'empty': r2_empty,
+          #  'conflict': r3_conflict,
+          #  'balance': r3_balance, 
+        #}
         self.rule_rows = {}
         rule_definitions = [
-            ('keep_clear', 'KEEP Clear', 'w:1.4', RULE_KEEP),
-            ('batch', 'Batch', 'w:1.3', RULE_KEEP_ALT),
-            ('imbalance', 'Imbalance', 'w:1.3', RULE_SWITCH),
-            ('urgency', 'Urgency', 'w:1.5', RULE_SWITCH_TIME),
-            ('empty', 'Empty', 'w:1.6', RULE_SWITCH_EMPTY),
-            ('conflict', 'CONFLICT', 'w:0.7', RULE_CONFLICT),
+            ('keep_clearing', 'R1 Clearing', 'w:1.8', RULE_KEEP),
+            ('keep_efficient', 'R1 Efficient', 'w:1.3', RULE_KEEP_ALT),
+            ('keep_batch', 'R1 Batch', 'w:1.6', RULE_SWITCH),
+            ('switch_imbalance', 'R2 Imbalance', 'w:1.1', RULE_SWITCH_TIME),
+            ('switch_urgent', 'R2 Urgent', 'w:1.3', RULE_SWITCH_EMPTY),
+            ('switch_empty', 'R2 Empty', 'w:1.6', RULE_CONFLICT),
+            ('conflict', 'R3 Conflict', 'w:2.0', RULE_CONFLICT),
+            ('balance', 'R3 Balance', 'w:1.4', RULE_KEEP_ALT),
         ]
         
         for rule_id, rule_name, weight, color in rule_definitions:
@@ -539,17 +593,20 @@ class UltimateTrafficApp(tk.Tk):
         )
         self.lbl_rate_val.pack(side='right')
         
-        def update_rate(v):
-            val = float(v)
+        def update_rate(*args):
+            val = self.rate_var.get()
             self.lbl_rate_val.config(text=f"{val:.0f}")
             self.target_flow = val
             self.lbl_target_flow.config(text=f"{val:.0f}")
             self.update_capacity_estimate()
             self.draw_gauge()
         
+        # Use trace to ensure updates happen when variable changes
+        self.rate_var.trace_add('write', update_rate)
+        
         ttk.Scale(
             content, from_=10, to=400,
-            variable=self.rate_var, command=update_rate, style='Horizontal.TScale'
+            variable=self.rate_var, style='Horizontal.TScale'
         ).pack(fill='x', pady=PAD_ELEMENT)
         
         ttk.Button(
@@ -561,21 +618,26 @@ class UltimateTrafficApp(tk.Tk):
     # EVENT HANDLERS
     # =========================================================================
     
-    def _bind_mousewheel(self):
-        self.sidebar_canvas.bind_all('<MouseWheel>', self._on_mousewheel)
+    def _bind_mousewheel_to(self, canvas):
+        self._active_canvas = canvas
+        canvas.bind_all('<MouseWheel>', self._on_mousewheel)
     
     def _unbind_mousewheel(self):
-        self.sidebar_canvas.unbind_all('<MouseWheel>')
+        if hasattr(self, '_active_canvas'):
+            self._active_canvas.unbind_all('<MouseWheel>')
     
     def _on_mousewheel(self, event):
-        self.sidebar_canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units')
+        if hasattr(self, '_active_canvas'):
+            self._active_canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units')
     
     def _on_sidebar_resize(self, event):
         new_width = event.width - 20
         if new_width > 100:
-            items = self.sidebar_canvas.find_all()
-            if items:
-                self.sidebar_canvas.itemconfig(items[0], width=new_width)
+            # Update both tab canvases
+            for canvas in [self.dashboard_canvas, self.fuzzy_canvas]:
+                items = canvas.find_all()
+                if items:
+                    canvas.itemconfig(items[0], width=new_width)
             self.sidebar_width = new_width
     
     def _update_canvas_dimensions(self):
@@ -735,15 +797,18 @@ class UltimateTrafficApp(tk.Tk):
     
     def update_rule_bars(self, rules):
         """Update the rule bar visualizations"""
-        r1_total, r2_imbalance, r2_urgent, r3_total, r2_empty, r1_batch = rules
-        
+
+        r1_clearing, r1_efficient, r1_batch, r2_imbalance, r2_empty, r2_urgent, r3_balance, r3_conflict, r3_total, r1_total = rules
+
         rule_values = {
-            'keep_clear': r1_total,
-            'batch': r1_batch,
-            'imbalance': r2_imbalance,
-            'urgency': r2_urgent,
-            'empty': r2_empty,
-            'conflict': r3_total,
+            'keep_clearing': r1_clearing,
+            'keep_efficient': r1_efficient,
+            'keep_batch': r1_batch,
+            'switch_imbalance': r2_imbalance,
+            'switch_urgent': r2_urgent,
+            'switch_empty': r2_empty,
+            'conflict': r3_conflict,
+            'balance': r3_balance, 
         }
         
         for rule_id, value in rule_values.items():
